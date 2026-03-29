@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SCHEME: ValidatorStatus
-  XCODEPROJ: ValidatorStatus.xcodeproj
+  SCHEME: validator-status
+  XCODEPROJ: validator-status.xcodeproj
 
 jobs:
   build:
@@ -67,7 +67,7 @@ jobs:
         run: |
           xcodebuild test \
             -project "$XCODEPROJ" \
-            -scheme ValidatorStatusTests \
+            -scheme validator-status-tests \
             -derivedDataPath ~/DerivedData \
             -destination "platform=macOS" \
             MACOSX_DEPLOYMENT_TARGET=14.0 \
