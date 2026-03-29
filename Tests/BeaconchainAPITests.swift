@@ -9,8 +9,8 @@ final class BeaconchainAPIParseTests: XCTestCase {
         {
             "data": [{
                 "validator": {
-                    "index": 75075,
-                    "public_key": "0xabcdef1234567890a3f9c12b"
+                    "index": 123456,
+                    "public_key": "0xabcdef1234567890deadbeef"
                 },
                 "status": "active_online",
                 "online": true,
@@ -24,7 +24,7 @@ final class BeaconchainAPIParseTests: XCTestCase {
         """
         let status = try parse(json)
 
-        XCTAssertEqual(status.index, 75075)
+        XCTAssertEqual(status.index, 123456)
         XCTAssertTrue(status.isActive)
         XCTAssertTrue(status.isOnline)
         XCTAssertFalse(status.isSlashed)
@@ -32,7 +32,7 @@ final class BeaconchainAPIParseTests: XCTestCase {
         XCTAssertEqual(status.statusLabel, "active_online")
         XCTAssertEqual(status.balanceETH!, 32.041928, accuracy: 0.000001)
         XCTAssertEqual(status.effectiveBalanceETH!, 32.0, accuracy: 0.000001)
-        XCTAssertEqual(status.pubKeyShort, "…a3f9c12b")
+        XCTAssertEqual(status.pubKeyShort, "…deadbeef")
     }
 
     func testParseActiveOfflineValidator() throws {
@@ -167,7 +167,9 @@ final class BeaconchainAPIParseTests: XCTestCase {
 
     func testFallbackIndexUsedWhenMissing() throws {
         let status = try parse(
-            """{ "data": [{ "validator": {}, "status": "active_online", "online": true }] }""",
+            """
+            { "data": [{ "validator": {}, "status": "active_online", "online": true }] }
+            """,
             fallback: 42
         )
         XCTAssertEqual(status.index, 42)

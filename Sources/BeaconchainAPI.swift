@@ -10,7 +10,7 @@ struct ValidatorStatus: Equatable {
     let statusLabel: String
     let balanceETH: Double?
     let effectiveBalanceETH: Double?
-    /// Last 8 hex chars of the public key, e.g. "…a3f9c12b"
+    /// Last 8 hex chars of the public key, e.g. "…deadbeef"
     let pubKeyShort: String?
     let timestamp: Date
 

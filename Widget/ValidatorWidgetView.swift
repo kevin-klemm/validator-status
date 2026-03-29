@@ -27,9 +27,9 @@ struct ValidatorWidgetView: View {
 
 // MARK: - Small
 //
-//  [Ξ diamond]         75075
+//  [Ξ diamond]         123456
 //
-//  ● …a3f9c12b
+//  ● …deadbeef
 //
 //  Validating
 //
@@ -278,13 +278,13 @@ private func friendlyStatus(_ label: String) -> String {
     ValidatorEntry.placeholder
     ValidatorEntry(
         date: .now,
-        validatorIndex: 75075,
+        validatorIndex: 123456,
         isHealthy: false,
         isSlashed: false,
         statusLabel: "active_offline",
         balanceETH: 32.0419,
         effectiveBalanceETH: 32.0,
-        pubKeyShort: "…a3f9c12b",
+        pubKeyShort: "…deadbeef",
         isError: false,
         errorMessage: nil
     )

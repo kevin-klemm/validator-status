@@ -14,13 +14,13 @@ struct ValidatorEntry: TimelineEntry {
 
     static let placeholder = ValidatorEntry(
         date: .now,
-        validatorIndex: 75075,
+        validatorIndex: 123456,
         isHealthy: true,
         isSlashed: false,
         statusLabel: "active_online",
         balanceETH: 32.0419,
         effectiveBalanceETH: 32.0,
-        pubKeyShort: "…a3f9c12b",
+        pubKeyShort: "…deadbeef",
         isError: false,
         errorMessage: nil
     )
