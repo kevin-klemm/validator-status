@@ -13,7 +13,7 @@ concurrency:
 env:
   SCHEME: validator-status
   TEST_SCHEME: validator-status-tests
-  XCODEPROJ: ValidatorStatus.xcodeproj
+  XCODEPROJ: validator-status.xcodeproj
   APP_NAME: Validator Status.app
 
 jobs:

@@ -5,9 +5,8 @@
 ._*
 
 # Xcode
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
+*.xcodeproj/
+*.xcworkspace/
 *.xcuserstate
 *.xcscmblueprint
 xcuserdata/

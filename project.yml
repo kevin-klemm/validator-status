@@ -12,6 +12,30 @@ settings:
     SWIFT_VERSION: "5.9"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
 
+schemes:
+  validator-status:
+    build:
+      targets:
+        validator-status: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+
+  validator-status-tests:
+    build:
+      targets:
+        validator-status: all
+        validator-status-tests: [test]
+    test:
+      config: Debug
+      targets:
+        - validator-status-tests
+
 targets:
   validator-status:
     type: application
