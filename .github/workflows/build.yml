@@ -1,0 +1,85 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SCHEME: ValidatorStatus
+  XCODEPROJ: ValidatorStatus.xcodeproj
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      # ── Cache derived data to speed up incremental builds ──
+      - name: Restore build cache
+        id: cache-derived
+        uses: actions/cache@v4
+        with:
+          path: ~/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('project.yml', '**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project "$XCODEPROJ" \
+            -scheme "$SCHEME" \
+            -derivedDataPath ~/DerivedData \
+            -destination "platform=macOS" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Run tests
+        run: |
+          xcodebuild test \
+            -project "$XCODEPROJ" \
+            -scheme ValidatorStatusTests \
+            -derivedDataPath ~/DerivedData \
+            -destination "platform=macOS" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty && exit ${PIPESTATUS[0]}
+
+      # ── Archive the .app for download ──
+      - name: Archive app
+        run: |
+          APP_PATH=$(find ~/DerivedData/Build/Products -name "Validator Status.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::Validator Status.app not found in DerivedData"
+            exit 1
+          fi
+          ditto -c -k --keepParent "$APP_PATH" Validator-Status.zip
+          echo "Archived: $(du -h Validator-Status.zip | cut -f1)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Validator-Status
+          path: Validator-Status.zip
+          retention-days: 14

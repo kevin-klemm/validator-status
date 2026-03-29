@@ -10,7 +10,10 @@ struct HostApp: App {
 
     var body: some Scene {
         Settings {
-            EmptyView()
+            Text("Validator Status")
+                .onOpenURL { url in
+                    NSWorkspace.shared.open(url)
+                }
         }
     }
 }
