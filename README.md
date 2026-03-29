@@ -36,31 +36,6 @@ This generates the Xcode project from `project.yml`. Then open `validator-status
 3. Build & Run the **validator-status** scheme
 4. Right-click your desktop → **Edit Widgets** → add **Validator Status**
 
-### GitHub Actions artifacts
-
-`build.yml` is CI only. It compiles, tests, and uploads `Validator-Status-unsigned` for debugging. That artifact is not meant for end users and Gatekeeper will block it after download.
-
-`release.yml` is the distributable path. It builds the app, signs it with your Developer ID certificate, notarizes it with Apple, staples the result, and uploads `Validator-Status-macOS.zip`. If the workflow runs from a tag like `v1.0.0`, it also attaches that zip to a GitHub Release so users can just download and open it.
-
-### One-time release setup
-
-Required repository secrets for a distributable macOS artifact:
-
-- `APPLE_CERTIFICATE_P12_BASE64` — base64-encoded Developer ID Application certificate export
-- `APPLE_CERTIFICATE_PASSWORD` — password for that `.p12`
-- `APPLE_SIGNING_IDENTITY` — the full `Developer ID Application: ...` identity name
-- `APPLE_TEAM_ID` — your Apple Developer team ID
-- `APPLE_ID` — the Apple ID used for notarization
-- `APPLE_APP_SPECIFIC_PASSWORD` — app-specific password for that Apple ID
-
-After those secrets are set once, shipping a new version is just:
-
-1. Push a tag like `v1.0.0`, or run the `Release` workflow manually
-2. Wait for `release.yml` to finish
-3. Share the generated `Validator-Status-macOS.zip` asset from the GitHub Release
-
-End users do not need to set any environment variables. They should download the notarized release artifact, not the unsigned CI artifact.
-
 ### Configure the widget
 
 Long-press the widget and choose **Edit Widget** to set:

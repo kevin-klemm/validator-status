@@ -15,7 +15,6 @@ env:
   TEST_SCHEME: validator-status-tests
   XCODEPROJ: ValidatorStatus.xcodeproj
   APP_NAME: Validator Status.app
-  DERIVED_DATA_PATH: ${{ runner.temp }}/DerivedData
 
 jobs:
   build:
@@ -45,7 +44,7 @@ jobs:
         id: cache-derived
         uses: actions/cache@v4
         with:
-          path: ${{ env.DERIVED_DATA_PATH }}
+          path: ${{ runner.temp }}/DerivedData
           key: deriveddata-${{ runner.os }}-${{ hashFiles('project.yml', '**/*.swift') }}
           restore-keys: |
             deriveddata-${{ runner.os }}-
@@ -58,7 +57,7 @@ jobs:
           xcodebuild build \
             -project "$XCODEPROJ" \
             -scheme "$SCHEME" \
-            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             -destination "platform=macOS" \
             MACOSX_DEPLOYMENT_TARGET=14.0 \
             CODE_SIGN_IDENTITY="-" \
@@ -71,7 +70,7 @@ jobs:
           xcodebuild test \
             -project "$XCODEPROJ" \
             -scheme "$TEST_SCHEME" \
-            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             -destination "platform=macOS" \
             MACOSX_DEPLOYMENT_TARGET=14.0 \
             CODE_SIGN_IDENTITY="-" \
@@ -82,7 +81,7 @@ jobs:
       - name: Locate app bundle
         id: app
         run: |
-          APP_PATH=$(find "$DERIVED_DATA_PATH/Build/Products" -name "$APP_NAME" -type d | head -1)
+          APP_PATH=$(find "$RUNNER_TEMP/DerivedData/Build/Products" -name "$APP_NAME" -type d | head -1)
           if [ -z "$APP_PATH" ]; then
             echo "::error::$APP_NAME not found in DerivedData"
             exit 1
