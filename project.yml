@@ -57,6 +57,5 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.validatorstatus.tests
         MACOSX_DEPLOYMENT_TARGET: "14.0"
         GENERATE_INFOPLIST_FILE: true
-    dependencies:
-      - target: ValidatorStatus
-        embed: false
+        TEST_HOST: ""
+        BUNDLE_LOADER: ""
