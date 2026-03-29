@@ -12,7 +12,10 @@ concurrency:
 
 env:
   SCHEME: validator-status
-  XCODEPROJ: validator-status.xcodeproj
+  TEST_SCHEME: validator-status-tests
+  XCODEPROJ: ValidatorStatus.xcodeproj
+  APP_NAME: Validator Status.app
+  DERIVED_DATA_PATH: ${{ runner.temp }}/DerivedData
 
 jobs:
   build:
@@ -42,7 +45,7 @@ jobs:
         id: cache-derived
         uses: actions/cache@v4
         with:
-          path: ~/DerivedData
+          path: ${{ env.DERIVED_DATA_PATH }}
           key: deriveddata-${{ runner.os }}-${{ hashFiles('project.yml', '**/*.swift') }}
           restore-keys: |
             deriveddata-${{ runner.os }}-
@@ -55,7 +58,7 @@ jobs:
           xcodebuild build \
             -project "$XCODEPROJ" \
             -scheme "$SCHEME" \
-            -derivedDataPath ~/DerivedData \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
             -destination "platform=macOS" \
             MACOSX_DEPLOYMENT_TARGET=14.0 \
             CODE_SIGN_IDENTITY="-" \
@@ -67,8 +70,8 @@ jobs:
         run: |
           xcodebuild test \
             -project "$XCODEPROJ" \
-            -scheme validator-status-tests \
-            -derivedDataPath ~/DerivedData \
+            -scheme "$TEST_SCHEME" \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
             -destination "platform=macOS" \
             MACOSX_DEPLOYMENT_TARGET=14.0 \
             CODE_SIGN_IDENTITY="-" \
@@ -76,20 +79,26 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty && exit ${PIPESTATUS[0]}
 
-      # ── Archive the .app for download ──
-      - name: Archive app
+      - name: Locate app bundle
+        id: app
         run: |
-          APP_PATH=$(find ~/DerivedData/Build/Products -name "Validator Status.app" -type d | head -1)
+          APP_PATH=$(find "$DERIVED_DATA_PATH/Build/Products" -name "$APP_NAME" -type d | head -1)
           if [ -z "$APP_PATH" ]; then
-            echo "::error::Validator Status.app not found in DerivedData"
+            echo "::error::$APP_NAME not found in DerivedData"
             exit 1
           fi
-          ditto -c -k --keepParent "$APP_PATH" Validator-Status.zip
-          echo "Archived: $(du -h Validator-Status.zip | cut -f1)"
+          echo "app_path=$APP_PATH" >> "$GITHUB_OUTPUT"
+          echo "Found app bundle at $APP_PATH"
 
-      - name: Upload artifact
+      - name: Package unsigned CI app
+        run: |
+          ditto -c -k --keepParent "${{ steps.app.outputs.app_path }}" Validator-Status-unsigned.zip
+          echo "Uploaded artifact: unsigned CI build for inspection only." >> "$GITHUB_STEP_SUMMARY"
+          echo "Gatekeeper will block this artifact after download unless you sign and notarize it separately." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload unsigned CI artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Validator-Status
-          path: Validator-Status.zip
+          name: Validator-Status-unsigned
+          path: Validator-Status-unsigned.zip
           retention-days: 14
